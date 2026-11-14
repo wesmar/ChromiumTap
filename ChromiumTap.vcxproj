@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <ProjectGuid>{00000000-0000-0000-0000-000000000004}</ProjectGuid>
+    <RootNamespace>ChromiumTap</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(VCTargetsPath)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(VCTargetsPath)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <GenerateManifest>false</GenerateManifest>
+    <OutDir>$(MSBuildProjectDirectory)\bin\</OutDir>
+    <IntDir>$(MSBuildProjectDirectory)\obj\$(ProjectName)\$(Configuration)\$(Platform)\</IntDir>
+    <TargetName>ChromiumTap</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level4</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>false</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_WINDOWS;_HAS_EXCEPTIONS=0;_USE_STD_VECTOR_ALGORITHMS=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)app;$(ProjectDir)core;$(ProjectDir)gui;$(ProjectDir)crypto;$(ProjectDir)support;$(ProjectDir)resources;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <Optimization>MaxSpeed</Optimization>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <ExceptionHandling>false</ExceptionHandling>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <AdditionalOptions>/utf-8 /permissive- /GS- /Brepro /Zc:threadSafeInit- %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <EntryPointSymbol>EntryPoint</EntryPointSymbol>
+      <IgnoreSpecificDefaultLibraries>libcmt.lib;libucrt.lib;libcpmt.lib;libvcruntime.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;advapi32.lib;shell32.lib;ole32.lib;rpcrt4.lib;crypt32.lib;bcrypt.lib;cabinet.lib;d2d1.lib;dwrite.lib;dwmapi.lib;uxtheme.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>/NXCOMPAT /INCREMENTAL:NO /Brepro %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)resources;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <MASM>
+      <WarningLevel>3</WarningLevel>
+      <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    </MASM>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="app\OrchestratorCore.cpp" />
+    <ClCompile Include="app\BannerSystem.cpp" />
+    <ClCompile Include="app\BrowserHelp.cpp" />
+    <ClCompile Include="core\BrowserProcessManager.cpp" />
+    <ClCompile Include="core\InjectionEngine.cpp" />
+    <ClCompile Include="core\CommunicationLayer.cpp" />
+    <ClCompile Include="core\EdgeDPAPI.cpp" />
+    <ClCompile Include="gui\Theme.cpp" />
+    <ClCompile Include="gui\Widgets.cpp" />
+    <ClCompile Include="gui\Menus.cpp" />
+    <ClCompile Include="gui\MainWindow.cpp" />
+    <ClCompile Include="gui\MainWindowLayout.cpp" />
+    <ClCompile Include="gui\MainWindowMenus.cpp" />
+    <ClCompile Include="gui\MainWindowCommands.cpp" />
+    <ClCompile Include="gui\Dialogs.cpp" />
+    <ClCompile Include="support\Text.cpp" />
+    <ClCompile Include="support\EmbeddedModule.cpp" />
+    <ClCompile Include="support\syscalls.cpp" />
+    <ClCompile Include="support\RuntimeSupport.cpp">
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="app\OrchestratorCore.h" />
+    <ClInclude Include="app\BannerSystem.h" />
+    <ClInclude Include="app\BrowserHelp.h" />
+    <ClInclude Include="app\HelpSystem.h" />
+    <ClInclude Include="core\BrowserProcessManager.h" />
+    <ClInclude Include="core\InjectionEngine.h" />
+    <ClInclude Include="core\CommunicationLayer.h" />
+    <ClInclude Include="core\EdgeDPAPI.h" />
+    <ClInclude Include="support\syscalls.h" />
+    <ClInclude Include="support\RuntimeSupport.h" />
+    <ClInclude Include="support\Text.h" />
+    <ClInclude Include="support\Diagnostic.h" />
+    <ClInclude Include="support\EmbeddedModule.h" />
+    <ClInclude Include="resources\resource.h" />
+    <ClInclude Include="gui\Handle.h" />
+    <ClInclude Include="gui\Theme.h" />
+    <ClInclude Include="gui\Widgets.h" />
+    <ClInclude Include="gui\Menus.h" />
+    <ClInclude Include="gui\MainWindow.h" />
+    <ClInclude Include="gui\MainWindowDetail.h" />
+    <ClInclude Include="gui\Dialogs.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <MASM Include="support\AbiTramp.asm" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="resources\ChromiumTap.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.targets" />
+  </ImportGroup>
+</Project>

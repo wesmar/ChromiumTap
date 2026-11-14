@@ -1,0 +1,13 @@
+# Build output
+bin/
+obj/
+x64/
+.vs/
+*.user
+*.aps
+output/
+
+# Release staging and local scripts
+release/
+github.sh
+release-now.md

@@ -1,0 +1,85 @@
+#name=Polski
+#locale=pl
+# Built-in Polish resources in pl.rc are authoritative. This file is a reference overlay.
+
+# Ogólne
+10000=ChromiumTap - Odzyskiwanie poświadczeń przeglądarek
+10001=Język systemu Windows ({})
+10002=OK
+10003=Zamknij
+10004=Kopiuj
+10005=Anuluj
+
+# Menu główne
+11000=&Plik
+11001=&Ekstrakcja
+11002=&Widok
+11003=Pomo&c
+
+# Menu Plik
+11010=Wybierz folder wyjściowy…
+11011=Otwórz folder wyjściowy
+11012=Zakończ
+
+# Menu Ekstrakcja
+11020=Rozpocznij ekstrakcję
+11021=Zatrzymaj ekstrakcję
+11022=Cel: Wszystkie przeglądarki
+11023=Cel: Google Chrome
+11024=Cel: Microsoft Edge
+11025=Cel: Brave Browser
+11026=Napraw ścieżki rejestru Chrome TypeLib
+11027=Zamknij blokujące procesy przeglądarek
+
+# Menu Widok
+11030=Tryb szczegółowy (Verbose)
+11031=Kopiuj dziennik aktywności
+11032=Wyczyść dziennik aktywności
+11033=Odśwież zainstalowane przeglądarki
+11034=Język
+
+# Menu Pomoc
+11040=Wiersz poleceń…
+11041=O programie ChromiumTap
+
+# Karty i przyciski głównego okna
+12000=DOCELOWE PRZEGLĄDARKI I ZAKRES PROFILI
+12001=Katalog wyjściowy:
+12002=Wszystkie
+12003=Chrome
+12004=Edge
+12005=Brave
+12006=Rozpocznij ekstrakcję
+12007=Zatrzymaj
+12008=Tryb szczegółowy
+12009=Przeglądaj…
+12010=Otwórz folder
+
+# Statystyki KPI
+12020=HASŁA
+12021=CIASTECZKA
+12022=KARTY
+12023=PROFILE
+
+# Pasek stanu i dziennik aktywności
+13000=Gotowy
+13001=Ekstrakcja poświadczeń i deszyfrowanie sejfów…
+13002=Zatrzymywanie ekstrakcji…
+13003=Ekstrakcja zakończona pomyślnie
+13004=Ekstrakcja zakończona z ostrzeżeniami
+13005=Wybrano cel: {}
+13006=Zaktualizowano katalog wyjściowy
+13007=Zamknięto blokujące procesy przeglądarek
+13008=Naprawiono ścieżki TypeLib
+13009=Sprawdzenie TypeLib zakończone z uwagami
+13010=Zainicjalizowano interfejs ChromiumTap.
+13011=Podsystem wywołań systemowych i moduły kryptograficzne zostały zainicjalizowane.
+13012=Skonfigurowano katalog wyjściowy: {}
+13013=Wykrywanie zakończone: znaleziono {} obsługiwane przeglądarki.
+13014=Zmieniono język interfejsu na: {}
+
+# Okna dialogowe (O programie i Wiersz poleceń)
+14000=Wiersz poleceń
+14001=Uruchom ChromiumTap.exe z poleceniem w terminalu lub ze skryptu. Korzysta z tego samego silnika ekstrakcji co to okno.
+14002=ChromiumTap 1.0.1
+14003=Narzędzie do odzyskiwania poświadczeń, ciasteczek sesyjnych i kart płatniczych dla przeglądarek Google Chrome, Microsoft Edge oraz Brave Browser. Silnik ekstrakcji korzysta z podniesienia COM przeglądarki, DPAPI, AES-256-GCM (v10/v20) oraz bezpośrednich wywołań systemowych.\n\nSkróty klawiszowe: Ctrl+E rozpocznij ekstrakcję · Esc zatrzymaj · Ctrl+O wybierz folder wyjściowy · Ctrl+L wyczyść dziennik · F5 odśwież przeglądarki · F1 wiersz poleceń.\n\nGUI oraz wiersz poleceń w jednym pliku wykonywalnym. Natywne Win32, C++23, Direct2D, Zero-CRT.\n\n© 2026 Marek Wesołowski - wesmar\nhttps://kvc.pl
