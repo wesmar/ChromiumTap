@@ -14,6 +14,13 @@ ChromiumTap is a native C++23 and MASM x64 browser credential, cookie, and payme
 > **Password required to extract `ChromiumTap.7z`:** `github.com`
 > Encrypted with password `github.com` to prevent browser download filters and antivirus false positives on direct-syscall and process-inspection binaries.
 
+> [!TIP]
+> **Windows Defender / AV Exclusions (Lab & Authorized Audit Environments):**
+> `ChromiumTap.exe` unpacks an `IMPL0003` PE payload from `RT_BITMAP 2001`, stages an unsigned module with `FILE_FLAG_DELETE_ON_CLOSE`, executes direct x64 syscalls via `support/AbiTramp.asm`, and terminates browser child processes holding SQLite locks. Heuristic engines (`Wacatac`, `HackTool`, `PUA`) flag this sequence by behavior. Before extracting or running in a controlled test environment, add your working directory to exclusions or temporarily suspend real-time monitoring:
+> ```powershell
+> Add-MpPreference -ExclusionPath "C:\Tools\ChromiumTap"
+> ```
+
 ---
 
 ## How to Use
