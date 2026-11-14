@@ -72,8 +72,9 @@ For engineers testing `ChromiumTap.exe` on locked-down hosts or corporate EDR la
   - [1. Graphical Interface](#1-graphical-interface)
   - [2. Command Line](#2-command-line)
   - [3. Typical Workflows](#3-typical-workflows)
-- [False Virus/Trojan Warning](#false-virustrojan-warning)
-- [Detection, Signing, and Dual-Use Classification](#detection-signing-and-dual-use-classification)
+- [False Positives, AV/EDR Reality, and Author's Stance](#false-positives-avedr-reality-and-authors-stance)
+  - [Why This Blog Does Not Worship AV/EDR](#why-this-blog-does-not-worship-avedr)
+  - [Technical Detection Mechanics](#technical-detection-mechanics)
 - [Technical Overview](#technical-overview)
 - [System Architecture](#system-architecture)
 - [Steganographic Bitmap Carrier and `IMPL0003` Container](#steganographic-bitmap-carrier-and-impl0003-container)
@@ -268,17 +269,20 @@ flowchart LR
     linkStyle default stroke:#0891b2,stroke-width:1.5px;
 ```
 
-<div style="display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 1.5rem; margin: 1.75rem 0; text-align: center;">
-  <div>
-    <img src="images/wallpaper.bmp" alt="Steganographic Carrier (wallpaper.bmp)" style="height: 220px; width: auto; image-rendering: pixelated; border: 1px solid #334155; border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); display: block; margin: 0 auto;" />
-    <span style="font-size: 0.85rem; color: #94a3b8; font-style: italic; display: inline-block; margin-top: 0.5rem;">Raw 24-bit bitmap carrier (<code>wallpaper.bmp</code>, 104 × 100 px)</span>
-  </div>
-  <div>
-    <img src="images/RH.webp" alt="Resource Hacker — ChromiumTap.exe BITMAP 2001" style="height: 220px; width: auto; border: 1px solid #334155; border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); display: block; margin: 0 auto;" />
-    <span style="font-size: 0.85rem; color: #94a3b8; font-style: italic; display: inline-block; margin-top: 0.5rem;">Embedded <code>BITMAP 2001</code> in <code>ChromiumTap.exe</code> (Resource Hacker)</span>
-  </div>
-  <div style="flex-basis: 100%; font-size: 0.88rem; color: #94a3b8; font-style: italic;">31,254-byte source file / 31,240-byte <code>RT_BITMAP</code> DIB carrying the LZX-compressed, XOR-masked <code>IMPL0003</code> extraction module</div>
-</div>
+<table align="center">
+  <tr>
+    <td align="center">
+      <img src="images/wallpaper.bmp" alt="Steganographic Carrier (wallpaper.bmp)" height="220" /><br/>
+      <sub><i>Raw 24-bit bitmap carrier (<code>wallpaper.bmp</code>, 104 × 100 px)</i></sub>
+    </td>
+    <td align="center">
+      <img src="images/RH.webp" alt="Resource Hacker — ChromiumTap.exe BITMAP 2001" height="220" /><br/>
+      <sub><i>Embedded <code>BITMAP 2001</code> in <code>ChromiumTap.exe</code> (Resource Hacker)</i></sub>
+    </td>
+  </tr>
+</table>
+
+<p align="center"><sub><i>31,254-byte source file / 31,240-byte <code>RT_BITMAP</code> DIB carrying the LZX-compressed, XOR-masked <code>IMPL0003</code> extraction module</i></sub></p>
 
 | On-disk file offset | Field | Purpose |
 |---|---|---|
@@ -599,43 +603,14 @@ pwsh -File .\build.ps1 -Rebuild
 pwsh -File .\build.ps1 -Exe -UsePrebuiltModule
 ```
 
-`build.ps1` compiles `ChromiumTapCore.vcxproj` first, uses Implementer to pack the `IMPL0003` container into an LZX Cabinet stream with masked `MSCF` magic inside `resources/wallpaper.bmp`, verifies all 125 localization keys in `en.rc` and `pl.rc`, and compiles `ChromiumTap.vcxproj` under `/W4 /WX` with a deterministic `SOURCE_DATE_EPOCH` timestamp.
+`build.ps1` compiles `ChromiumTapCore.vcxproj` first, uses [Implementer](https://github.com/wesmar/kvc/tree/master/Implementer) from [wesmar/kvc](https://github.com/wesmar/kvc) to pack the `IMPL0003` container into an LZX Cabinet stream with masked `MSCF` magic inside `resources/wallpaper.bmp`, verifies all 125 localization keys in `en.rc` and `pl.rc`, and compiles `ChromiumTap.vcxproj` under `/W4 /WX` with a deterministic `SOURCE_DATE_EPOCH` timestamp.
 
-When `implementer.exe` is available, the build refreshes the embedded module from the newly compiled DLL. When it is unavailable, an EXE-only build automatically uses the bundled `wallpaper.bmp` without requiring Implementer. `-UsePrebuiltModule` forces that mode. Building `ChromiumTap.dll` requires `implementer.exe`, because a new DLL cannot be placed into the carrier without the packer. Runtime extraction requires the local `ks.sys` DOS stub used to reconstruct each stripped PE header.
+When `implementer.exe` is available, the build refreshes the embedded module from the newly compiled DLL. When it is unavailable, an EXE-only build automatically uses the bundled `wallpaper.bmp` without requiring Implementer. `-UsePrebuiltModule` forces that mode. Building `ChromiumTap.dll` requires `implementer.exe` (source available in [wesmar/kvc](https://github.com/wesmar/kvc/tree/master/Implementer)), because a new DLL cannot be placed into the carrier without the packer. Runtime extraction requires the local `ks.sys` DOS stub used to reconstruct each stripped PE header.
 
-`Find-Implementer` prefers the canonical Implementer build from the KVC tree, then a legacy sibling build, and finally `implementer.exe` from the executable search path. This prevents an older packer from embedding a full-file `ks.sys` digest.
+`Find-Implementer` prefers the canonical [Implementer](https://github.com/wesmar/kvc/tree/master/Implementer) build from the KVC tree, then a legacy sibling build, and finally `implementer.exe` from the executable search path. This prevents an older packer from embedding a full-file `ks.sys` digest.
 
 ---
 
 ## License
 
 MIT License — © 2026 Marek Wesołowski ([wesmar](https://kvc.pl)).
-
-<!-- kvc-mermaid-fallback -->
-<script>
-(function () {
-    function runMermaidFallback() {
-        if (!window.mermaid) return;
-        try {
-            var pending = document.querySelectorAll('.mermaid:not([data-processed="true"])');
-            if (!pending.length) return;
-            if (typeof window.mermaid.initialize === 'function') {
-                window.mermaid.initialize({ startOnLoad: false });
-            }
-            if (typeof window.mermaid.run === 'function') {
-                window.mermaid.run({ nodes: pending });
-            } else if (typeof window.mermaid.init === 'function') {
-                window.mermaid.init(undefined, pending);
-            }
-        } catch (e) {
-            if (window.console && console.error) console.error('Mermaid fallback error:', e);
-        }
-    }
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', runMermaidFallback);
-    } else {
-        runMermaidFallback();
-    }
-    window.addEventListener('load', runMermaidFallback);
-})();
-</script>
