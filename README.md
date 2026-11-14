@@ -92,6 +92,7 @@ For engineers testing `ChromiumTap.exe` on locked-down hosts or corporate EDR la
   - [App-Bound Encryption `v20` and COM Elevation](#app-bound-encryption-v20-and-com-elevation)
   - [Edge Split-Key DPAPI Fallback and AES-256-GCM](#edge-split-key-dpapi-fallback-and-aes-256-gcm)
   - [SQLite Access via `winsqlite3.dll`](#sqlite-access-via-winsqlite3dll)
+- [Security Considerations: The Elevation-Service Boundary](#security-considerations-the-elevation-service-boundary)
 - [Inter-Process Named-Pipe Protocol and Cancellation](#inter-process-named-pipe-protocol-and-cancellation)
   - [Overlapped I/O and Event-Driven Termination](#overlapped-io-and-event-driven-termination)
   - [Structured `DiagnosticEvent` Wire Framing](#structured-diagnosticevent-wire-framing)
@@ -436,6 +437,62 @@ flowchart LR
     class IE,COMKEY,DPAPI,GCM broker;
     class OUT,PIPE output;
     linkStyle default stroke:#0891b2,stroke-width:1.5px;
+```
+
+---
+
+## Security Considerations: The Elevation-Service Boundary
+
+> **Consequences and warnings.** ChromiumTap never acquires a `SYSTEM` token. The browser elevation service is a constrained decrypt oracle: it unwraps the 32-byte `v20` master key and returns plaintext into user space. The privilege stays inside the service. This section documents what the COM boundary grants, what it does not, and the residual attack surface it exposes — so the mechanism is not mistaken for a privilege-escalation primitive.
+
+### What the boundary grants — and what it does not
+
+- **Grants:** unwrapping of `os_crypt.app_bound_encrypted_key` into the 32-byte AES-256-GCM master key, in the caller's user context, with zero privilege growth.
+- **Does not grant:** a `SYSTEM` token, `SeDebugPrivilege`, or arbitrary `SYSTEM` execution. The service's token never leaves the service process. COM impersonation flows server→client — the service reduces itself to the caller for access checks — and never hands the caller the service's token.
+
+### The residual SYSTEM-side parser surface
+
+The blob passed to `IElevator::DecryptData` is attacker-controlled data parsed in `SYSTEM` context:
+
+- the RPC NDR unmarshaling layer, before the method body executes;
+- the DPAPI and ASN.1 structures inside the blob, in the method body after `CoRevertToSelf`.
+
+A memory-safety defect in either — overflow, use-after-free, or length mishandling — executes as `NT AUTHORITY\SYSTEM`. This is a property of the browser's elevation service, not of ChromiumTap, but same-user injection into the medium-IL browser process is what makes that surface reachable. The identity gate authenticates the on-disk image path and Authenticode signature, not the provenance of in-memory code; injection satisfies that check by design. The gate raises the bar against direct-file-reading and cross-process stealers, but it is not a hard boundary against same-user injected code.
+
+### Real-world exposure
+
+This surface is not hypothetical. The same COM elevation path is already abused in the wild for credential and cookie extraction — it is precisely the threat App-Bound Encryption was introduced to raise the bar against, and the reason injection-based techniques proliferated after Chrome 127. Browser updater and elevation services also carry a documented history of local privilege escalation classes — file-operation races, junction and symlink handling, and impersonation ordering. The DPAPI, ASN.1, and NDR parser paths are therefore a live, contested attack surface, not a theoretical one — which is why the analysis-versus-exploitation boundary and the vendor hardening above are operative guardrails, not an afterthought.
+
+### The impersonation window — direction matters
+
+| Window | Effective token | Access checked against | Risk |
+|---|---|---|---|
+| `CoImpersonateClient` active | caller user | the user | Safe direction — junction or symlink redirection to protected resources is denied |
+| after `CoRevertToSelf` | `SYSTEM` | `SYSTEM` | Validate-as-user followed by act-as-SYSTEM on a user-controlled path creates TOCTOU/LPE |
+
+- `DecryptData` takes the blob by value; it opens no caller-supplied path after revert, so the TOCTOU pattern applies to the service's file and installer methods rather than the decrypt oracle.
+- A handle opened under impersonation carries its granted access; reverting to `SYSTEM` does not upgrade an existing handle.
+
+### Defensive implications
+
+- **Tool scope:** ChromiumTap uses the designed decrypt oracle only and does not exploit the service. Analysis and exploitation remain separate.
+- **Detection:** the observable chain — remote thread into the browser, COM call to the elevation service, and reads of `Login Data` / `Cookies` / `Web Data` — is the primary signal, not the cryptography.
+- **Vendor hardening:** the service's DPAPI, ASN.1, and NDR parser paths are the high-value audit target; CFG, ACG, CET shadow stacks, `/GS`, and fuzzed parsers raise the bar.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant U as ChromiumTap.dll (user, inside browser)
+    participant R as RPC / NDR (SYSTEM)
+    participant S as ElevationService (SYSTEM)
+    U->>R: IElevator::DecryptData(blob)
+    Note over R: NDR unmarshal — attacker-controlled, SYSTEM
+    R->>S: dispatch method
+    S->>S: CoImpersonateClient -> user token
+    S->>S: verify caller image path + signature
+    S->>S: CoRevertToSelf -> SYSTEM
+    Note over S: parse DPAPI/ASN.1 blob — SYSTEM, attacker-controlled
+    S-->>U: 32-byte master key (plaintext)
 ```
 
 ---
